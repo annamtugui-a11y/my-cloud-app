@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Cloud App</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; font-size: 16px; }
+    button { background: #0078d4; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    #salut { font-size: 32px; font-weight: bold; color: #0078d4; margin: 20px 0; display: none; }
+    #lista { margin-top: 20px; }
+    .user-item { padding: 8px; border-bottom: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h2>Înregistrare utilizator</h2>
+  <input type="text" id="nameInput" placeholder="Introdu numele tău..." />
+  <button onclick="salveazaNume()">Salvează</button>
+
+  <div id="salut"></div>
+
+  <h3>Utilizatori salvați:</h3>
+  <div id="lista"></div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    async function salveazaNume() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (!name) { alert('Introdu un nume!'); return; }
+
+      const res = await fetch(`${API}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+
+      if (res.ok) {
+        const salut = document.getElementById('salut');
+        salut.textContent = `Salut, ${name}!`;
+        salut.style.display = 'block';
+        document.getElementById('nameInput').value = '';
+        incarcaUtilizatori();
+      }
+    }
+
+    async function incarcaUtilizatori() {
+      const res = await fetch(`${API}/users`);
+      const users = await res.json();
+      const lista = document.getElementById('lista');
+      lista.innerHTML = users.map(u => `<div class="user-item">👤 ${u.name}</div>`).join('');
+    }
+
+    incarcaUtilizatori();
+  </script>
+</body>
+</html>
